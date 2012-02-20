@@ -11,7 +11,9 @@ Stats class! Only implements a few methods.
 */
 
 (function() {
-  var Stats, calculateDataArray, calculateFrequencies, freqchart, freqchart_height, num, pop_data, sampling_means, samplingchart, samplingchart_height, showSample, updateSamplingGraph, x_sampling, x_ticks, y_ticks;
+  var Stats, calculateDataArray, calculateFrequencies, clickDragEvent, freqchart, freqchart_height, num, pop_data, root, sampling_means, samplingchart, samplingchart_height, showSample, updateSamplingGraph, x_sampling, x_ticks, y_ticks;
+
+  root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
   Stats = (function() {
 
@@ -144,7 +146,7 @@ Stats class! Only implements a few methods.
       height = d3.select(this).attr("height");
       value = Math.floor(height / 9);
       _results = [];
-      for (num = 1; 1 <= value ? num <= value : num >= value; 1 <= value ? num++ : num--) {
+      for (num = 0; 0 <= value ? num < value : num > value; 0 <= value ? num++ : num--) {
         _results.push(tmp_array.push(i + 1));
       }
       return _results;
@@ -201,26 +203,30 @@ Stats class! Only implements a few methods.
     return tmp_array;
   };
 
-  freqchart.on("mousedown", function(d, i) {
-    freqchart.on("mousemove", function(d, i) {
-      var boxNum, newHeight, newY, xy;
-      xy = d3.svg.mouse(this);
-      boxNum = Math.ceil((xy[0] - 10) / 20);
-      newHeight = freqchart_height - (Math.floor(xy[1] / 9) * 9) - 2;
-      if (newHeight >= freqchart_height - 20) newHeight = freqchart_height - 20;
-      newY = freqchart_height - newHeight - 10;
-      freqchart.select("rect.sample").data([]).exit().remove();
-      freqchart.select("#box-" + boxNum).transition().delay(0).duration(150).attr("height", newHeight).attr("y", newY);
-      pop_data = calculateDataArray();
-      $("#freq-mean").html(pop_data.calculateMean());
-      $("#freq-stddev").html(pop_data.calculateStdDev());
-      freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).transition().attr("x1", function(d) {
-        return d * 20;
-      }).attr("x2", function(d) {
-        return d * 20;
-      });
-      sampling_means.data = [];
+  clickDragEvent = function(d, i) {
+    var boxNum, newHeight, newY, xy;
+    xy = d3.svg.mouse(this);
+    boxNum = Math.ceil((xy[0] - 20) / 20);
+    newHeight = freqchart_height - (Math.floor(xy[1] / 9) * 9) - 12;
+    if (newHeight >= freqchart_height - 20) newHeight = freqchart_height - 20;
+    if (newHeight < 0) newHeight = 0;
+    newY = freqchart_height - newHeight - 10;
+    freqchart.select("rect.sample").data([]).exit().remove();
+    freqchart.select("#box-" + boxNum).transition().delay(0).duration(150).attr("height", newHeight).attr("y", newY);
+    pop_data = calculateDataArray();
+    $("#freq-mean").html(pop_data.calculateMean());
+    $("#freq-stddev").html(pop_data.calculateStdDev());
+    freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).transition().attr("x1", function(d) {
+      return d * 20;
+    }).attr("x2", function(d) {
+      return d * 20;
     });
+    sampling_means.data = [];
+  };
+
+  freqchart.on("mousedown", function(d, i) {
+    clickDragEvent.bind(this).call(d, i);
+    freqchart.on("mousemove", clickDragEvent);
   });
 
   freqchart.on("mouseup", function(d, i) {
@@ -323,7 +329,5 @@ Stats class! Only implements a few methods.
     $("#sampling-stddev").html(sampling_means.calculateStdDev());
     return updateSamplingGraph();
   });
-
-  console.log("Compiled!");
 
 }).call(this);

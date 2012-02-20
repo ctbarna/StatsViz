@@ -8,6 +8,9 @@ the central limit theorem.
 ###
 Stats class! Only implements a few methods.
 ###
+
+root = exports ? this
+
 class Stats
   constructor: (@data=[], @sample=false) ->
 
@@ -127,7 +130,7 @@ calculateDataArray = ->
       height = d3.select(this).attr("height")
       value = Math.floor(height/9)
 
-      for num in [1..value]
+      for num in [0...value]
         tmp_array.push(i+1)
     )
 
@@ -185,37 +188,42 @@ calculateFrequencies = (data) ->
   return tmp_array
 
 # Follow people around when they drag.
+clickDragEvent = (d, i) ->
+  xy = d3.svg.mouse(this)
+  boxNum = Math.ceil((xy[0]-20)/20)
+
+  newHeight = freqchart_height - (Math.floor(xy[1]/9)*9) - 12
+
+  if newHeight >= freqchart_height - 20
+    newHeight = freqchart_height - 20
+
+  if newHeight < 0
+    newHeight = 0
+
+  newY = freqchart_height- newHeight - 10
+  freqchart.select("rect.sample").data([]).exit()
+    .remove()
+
+  freqchart.select("#box-"+boxNum)
+    .transition().delay(0).duration(150)
+    .attr("height", newHeight).attr("y", newY)
+
+
+  # Run calculations on our new population data.
+  pop_data = calculateDataArray()
+  $("#freq-mean").html(pop_data.calculateMean())
+  $("#freq-stddev").html(pop_data.calculateStdDev())
+
+  freqchart.selectAll("line.mean").data([pop_data.calculateMean()])
+    .transition()
+    .attr("x1", (d) -> d*20).attr("x2", (d) -> d*20)
+  # Reset the sampling
+  sampling_means.data = []
+  return
+
 freqchart.on("mousedown", (d,i) ->
-  freqchart.on("mousemove", (d,i) ->
-    xy = d3.svg.mouse(this)
-    boxNum = Math.ceil((xy[0]-10)/20)
-
-    newHeight = freqchart_height - (Math.floor(xy[1]/9)*9) - 2
-
-    if newHeight >= freqchart_height - 20
-      newHeight = freqchart_height - 20
-
-    newY = freqchart_height- newHeight - 10
-    freqchart.select("rect.sample").data([]).exit()
-      .remove()
-
-    freqchart.select("#box-"+boxNum)
-      .transition().delay(0).duration(150)
-      .attr("height", newHeight).attr("y", newY)
-
-
-    # Run calculations on our new population data.
-    pop_data = calculateDataArray()
-    $("#freq-mean").html(pop_data.calculateMean())
-    $("#freq-stddev").html(pop_data.calculateStdDev())
-
-    freqchart.selectAll("line.mean").data([pop_data.calculateMean()])
-      .transition()
-      .attr("x1", (d) -> d*20).attr("x2", (d) -> d*20)
-    # Reset the sampling
-    sampling_means.data = []
-
-    return )
+  clickDragEvent.bind(this).call(d,i)
+  freqchart.on("mousemove", clickDragEvent)
   return )
 
 # Remove the event when the mouse stops clicking or the mouse leaves the box.
@@ -326,4 +334,3 @@ $("#sample-button").click(->
 
   updateSamplingGraph()
   )
-console.log("Compiled!")
