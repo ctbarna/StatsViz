@@ -154,6 +154,12 @@ Stats class! Only implements a few methods.
 
   pop_data = calculateDataArray();
 
+  freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).enter().append("line").attr("y1", 10).attr("y2", freqchart_height - 10).attr("x1", function(d) {
+    return d * 20;
+  }).attr("x2", function(d) {
+    return d * 20;
+  }).attr("stroke", "#333").attr("class", "mean");
+
   $("#freq-mean").html(pop_data.calculateMean());
 
   $("#freq-stddev").html(pop_data.calculateStdDev());
@@ -208,6 +214,11 @@ Stats class! Only implements a few methods.
       pop_data = calculateDataArray();
       $("#freq-mean").html(pop_data.calculateMean());
       $("#freq-stddev").html(pop_data.calculateStdDev());
+      freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).transition().attr("x1", function(d) {
+        return d * 20;
+      }).attr("x2", function(d) {
+        return d * 20;
+      });
       sampling_means.data = [];
     });
   });
@@ -283,15 +294,21 @@ Stats class! Only implements a few methods.
       if (typeof d === "undefined") {
         return 0;
       } else {
-        return freqchart_height - ((d / max) * 190) - 10;
+        return freqchart_height - ((d / max) * 190 - 10) - 10;
       }
     }).attr("height", function(d, i) {
       if (typeof d === "undefined") {
         return 0;
       } else {
-        return (d / max) * 190;
+        return (d / max) * 190 - 10;
       }
     }).attr("class", "dist");
+    samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()]).enter().append("line").attr("class", "mean");
+    samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()]).attr("y1", 10).attr("y2", freqchart_height - 10).attr("x1", function(d) {
+      return d * 20;
+    }).attr("x2", function(d) {
+      return d * 20;
+    }).attr("stroke", "#333").attr("class", "mean");
   };
 
   $("#sample-button").click(function() {

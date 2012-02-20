@@ -132,7 +132,16 @@ calculateDataArray = ->
     )
 
   return new Stats(tmp_array)
+
 pop_data = calculateDataArray()
+# Mean Line
+freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).enter()
+  .append("line")
+  .attr("y1", 10).attr("y2", freqchart_height-10)
+  .attr("x1", (d) -> d*20).attr("x2", (d) -> d*20)
+  .attr("stroke", "#333")
+  .attr("class", "mean")
+
 $("#freq-mean").html(pop_data.calculateMean())
 $("#freq-stddev").html(pop_data.calculateStdDev())
 
@@ -161,6 +170,7 @@ showSample = (sample) ->
       else
         d*9)
     .attr("fill", "blue")
+
 
 # Convert from a data array to an array of frequencies.
 calculateFrequencies = (data) ->
@@ -199,6 +209,9 @@ freqchart.on("mousedown", (d,i) ->
     $("#freq-mean").html(pop_data.calculateMean())
     $("#freq-stddev").html(pop_data.calculateStdDev())
 
+    freqchart.selectAll("line.mean").data([pop_data.calculateMean()])
+      .transition()
+      .attr("x1", (d) -> d*20).attr("x2", (d) -> d*20)
     # Reset the sampling
     sampling_means.data = []
 
@@ -262,6 +275,8 @@ samplingchart.selectAll("rect.dist").data(((num)*20 for num in [0..29])).enter()
   .attr("pointer-events","all")
   .attr("fill", "lightBlue").attr("id", (d, i) -> "sampling-"+(i+1))
 
+# Mean Line
+
 # Update Sampling Graph
 updateSamplingGraph = () ->
   freqs = calculateFrequencies(sampling_means.data)
@@ -275,13 +290,22 @@ updateSamplingGraph = () ->
       if typeof(d) is "undefined"
         0
       else
-        freqchart_height - ((d/max)*190) - 10)
+        freqchart_height - ((d/max)*190 - 10) - 10)
     .attr("height", (d,i) ->
       if typeof(d) is "undefined"
         0
       else
-        (d/max)*190)
+        (d/max)*190 - 10 )
     .attr("class", "dist")
+
+  samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()])
+    .enter().append("line").attr("class", "mean")
+
+  samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()])
+    .attr("y1", 10).attr("y2", freqchart_height-10)
+    .attr("x1", (d) -> d*20).attr("x2", (d) -> d*20)
+    .attr("stroke", "#333")
+    .attr("class", "mean")
   return
 
 # UI elements.
