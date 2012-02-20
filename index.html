@@ -1,0 +1,94 @@
+<!doctype html>
+<!--[if lt IE 7]> <html class="no-js ie6 oldie" lang="en"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js ie7 oldie" lang="en"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js ie8 oldie" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>Stats Example</title>
+  <meta name="author" content="Chris Barna">
+
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <script src="js/libs/modernizr-2.0.6.min.js"></script>
+</head>
+
+<body>
+
+  <div id="container" class="container">
+    <header class="row">
+      <h1 class="span12">Stats Distributions</h1>
+      <p class="span12">In a political science stats class, my professor showed the class a
+      Java applet that demonstrated the central limit theorem visually. This
+      is my attempt to recreate it.</p>
+    </header>
+    <div id="main" role="main">
+      <h2>Frequency Distribution</h2>
+      <div class="row" id="frequency">
+        <div class="span8 chart"></div>
+        <div class="span4">
+          <h3>Population</h3>
+          <ul>
+            <li>Mean:</li> <span id="freq-mean"></span></li>
+            <li>StdDev:</li> <span id="freq-stddev"></span></li>
+          </ul>
+          <a href="#" class="btn" id="sample-button">Select Sample</a>
+          <h3>Latest Sample</h3>
+          <ul>
+            <li><span style="border-top:1px solid #000;">Y</span>:
+              <span id="sample-mean"></span></li>
+            <li>StdDev:</li> <span id="sample-stddev"></span></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- <h2>Sample Distribution</h2>-->
+      <!-- <div class="row" id="sample">-->
+        <!-- <div class="span8 chart"></div>-->
+        <!-- <div class="span4"></div>-->
+     <!-- </div>-->
+
+      <h2>Sampling Distribution</h2>
+      <div class="row" id="sampling">
+        <div class="span8 chart"></div>
+        <div class="span4"><h3>All Samples</h3>
+          <ul>
+            <li>N: <span id="sampling-n">0</span>
+            <li>Mean:
+              <span id="sampling-mean"></span></li>
+            <li>StdErr:</li> <span id="sampling-stddev"></span></li>
+        </ul></div>
+     </div>
+    <footer>
+
+    </footer>
+  </div> <!--! end of #container -->
+
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
+
+
+  <script src="js/libs/d3.min.js"></script>
+  <script defer src="js/stats.js"></script>
+
+  <script> // Change UA-XXXXX-X to be your site's ID
+    window._gaq = [['_setAccount','UAXXXXXXXX1'],['_trackPageview'],['_trackPageLoadTime']];
+    Modernizr.load({
+      load: ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js'
+    });
+  </script>
+
+
+  <!--[if lt IE 7 ]>
+    <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
+    <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
+  <![endif]-->
+
+</body>
+</html>

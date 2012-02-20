@@ -1,0 +1,11 @@
+# Personal Boilerplate
+
+I find that I always make the same adjustments to Paul Irish's [HTML5
+boilerplate](http://html5boilerplate.com/) so I figure, why not simply
+keep these changes in a git repository.
+
+## Main Differences
+* *Cleaned up js/ directory.* I found that I never really organized my
+  scripts how the boilerplate prescribed.
+* *No icons or image files.*
+* *No build script.*
