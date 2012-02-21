@@ -12,6 +12,8 @@ Put everything in a couple charts.
 
   root.viz = typeof viz !== "undefined" && viz !== null ? viz : {};
 
+  pop_data = new Stats([]);
+
   /*
   Some helpful functions
   */
@@ -71,7 +73,7 @@ Put everything in a couple charts.
   };
 
   clickDragEvent = function(d, i) {
-    var boxNum, newHeight, newY, pop_data, xy;
+    var boxNum, newHeight, newY, xy;
     xy = d3.svg.mouse(this);
     boxNum = Math.ceil((xy[0] - 20) / 20);
     newHeight = freqchart_height - (Math.floor(xy[1] / 9) * 9) - 11;
@@ -216,7 +218,7 @@ Put everything in a couple charts.
     return "box-" + (i + 1);
   });
 
-  pop_data = calculateDataArray();
+  root.pop_data = calculateDataArray();
 
   samplegroup = freqchart.selectAll("#frequency .chart svg").data([1]).enter().append("g").attr("class", "samplestuff");
 

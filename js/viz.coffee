@@ -6,6 +6,7 @@ Put everything in a couple charts.
 root = exports ? this
 root.viz = viz ? {}
 
+pop_data = new Stats([])
 ###
 Some helpful functions
 ###
@@ -234,7 +235,7 @@ freqchart.selectAll("rect.dist").data(((num)*20 for num in [0..29])).enter()
   .attr("pointer-events","all")
   .attr("fill", "lightBlue").attr("id", (d, i) -> "box-"+(i+1))
 
-pop_data = calculateDataArray()
+root.pop_data = calculateDataArray()
 samplegroup = freqchart.selectAll("#frequency .chart svg").data([1]).enter()
   .append("g")
   .attr("class", "samplestuff")
