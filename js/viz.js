@@ -141,7 +141,7 @@ Put everything in a couple charts.
         return (d / max) * 190 - 10;
       }
     }).attr("class", "dist");
-    if (!isNaN(sampling_means.calculateMean())) {
+    if (isNaN(sampling_means.calculateMean()) !== true) {
       samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()]).enter().append("line").attr("class", "mean");
       samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()]).attr("y1", 10).attr("y2", freqchart_height - 10).attr("x1", function(d) {
         return d * 20;
@@ -218,7 +218,7 @@ Put everything in a couple charts.
     return "box-" + (i + 1);
   });
 
-  root.pop_data = calculateDataArray();
+  pop_data = calculateDataArray();
 
   samplegroup = freqchart.selectAll("#frequency .chart svg").data([1]).enter().append("g").attr("class", "samplestuff");
 

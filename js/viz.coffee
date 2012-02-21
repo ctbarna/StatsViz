@@ -158,7 +158,7 @@ updateSamplingGraph = () ->
     .attr("class", "dist")
 
 
-  unless isNaN(sampling_means.calculateMean())
+  unless isNaN(sampling_means.calculateMean()) is true
     samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()])
       .enter().append("line").attr("class", "mean")
 
@@ -235,7 +235,7 @@ freqchart.selectAll("rect.dist").data(((num)*20 for num in [0..29])).enter()
   .attr("pointer-events","all")
   .attr("fill", "lightBlue").attr("id", (d, i) -> "box-"+(i+1))
 
-root.pop_data = calculateDataArray()
+pop_data = calculateDataArray()
 samplegroup = freqchart.selectAll("#frequency .chart svg").data([1]).enter()
   .append("g")
   .attr("class", "samplestuff")
