@@ -11,7 +11,7 @@ Stats class! Only implements a few methods.
 */
 
 (function() {
-  var Stats, calculateDataArray, calculateFrequencies, clickDragEvent, freqchart, freqchart_height, num, pop_data, root, sampling_means, samplingchart, samplingchart_height, showSample, updateSamplingGraph, x_sampling, x_ticks, y_ticks;
+  var Stats, calculateDataArray, calculateFrequencies, clickDragEvent, freqchart, freqchart_height, num, pop_data, root, roundDecimals, sampleClick, samplegroup, sampling_means, samplingchart, samplingchart_height, showSample, updateSamplingGraph, x_sampling, x_ticks, y_ticks;
 
   root = typeof exports !== "undefined" && exports !== null ? exports : this;
 
@@ -70,6 +70,10 @@ Stats class! Only implements a few methods.
     return Stats;
 
   })();
+
+  roundDecimals = function(num) {
+    return Math.round(num * 1000) / 1000;
+  };
 
   /*
   The data viz part!
@@ -156,22 +160,24 @@ Stats class! Only implements a few methods.
 
   pop_data = calculateDataArray();
 
+  samplegroup = freqchart.selectAll("#frequency .chart svg").data([1]).enter().append("g").attr("class", "samplestuff");
+
   freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).enter().append("line").attr("y1", 10).attr("y2", freqchart_height - 10).attr("x1", function(d) {
     return d * 20;
   }).attr("x2", function(d) {
     return d * 20;
   }).attr("stroke", "#333").attr("class", "mean");
 
-  $("#freq-mean").html(pop_data.calculateMean());
+  $("#freq-mean").html(roundDecimals(pop_data.calculateMean()));
 
-  $("#freq-stddev").html(pop_data.calculateStdDev());
+  $("#freq-stddev").html(roundDecimals(pop_data.calculateStdDev()));
 
   showSample = function(sample) {
     var frequencies;
     frequencies = calculateFrequencies(sample);
     console.log(frequencies);
-    freqchart.selectAll("rect.sample").data([]).exit().remove();
-    return freqchart.selectAll("rect.sample").data(frequencies).enter().append("rect").attr("x", function(d, i) {
+    samplegroup.selectAll("rect.sample").remove();
+    samplegroup.selectAll("rect.sample").data(frequencies).enter().append("rect").attr("x", function(d, i) {
       return (i * 20) + 21;
     }).attr("y", freqchart_height - 10).attr("height", 0).attr("width", 19).transition().attr("y", function(d, i) {
       if (typeof d === "undefined") {
@@ -185,7 +191,8 @@ Stats class! Only implements a few methods.
       } else {
         return d * 9;
       }
-    }).attr("fill", "blue");
+    }).attr("fill", "Blue");
+    return console.log(frequencies);
   };
 
   calculateFrequencies = function(data) {
@@ -207,21 +214,31 @@ Stats class! Only implements a few methods.
     var boxNum, newHeight, newY, xy;
     xy = d3.svg.mouse(this);
     boxNum = Math.ceil((xy[0] - 20) / 20);
-    newHeight = freqchart_height - (Math.floor(xy[1] / 9) * 9) - 12;
+    newHeight = freqchart_height - (Math.floor(xy[1] / 9) * 9) - 11;
     if (newHeight >= freqchart_height - 20) newHeight = freqchart_height - 20;
     if (newHeight < 0) newHeight = 0;
     newY = freqchart_height - newHeight - 10;
-    freqchart.select("rect.sample").data([]).exit().remove();
+    freqchart.select("g.samplestuff rect.sample").data([]).exit().remove();
     freqchart.select("#box-" + boxNum).transition().delay(0).duration(150).attr("height", newHeight).attr("y", newY);
+    samplegroup.selectAll("rect.sample").transition().attr("height", 0).attr("y", 190).remove();
     pop_data = calculateDataArray();
-    $("#freq-mean").html(pop_data.calculateMean());
-    $("#freq-stddev").html(pop_data.calculateStdDev());
+    $("#freq-mean").html(roundDecimals(pop_data.calculateMean()));
+    $("#freq-stddev").html(roundDecimals(pop_data.calculateStdDev()));
     freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).transition().attr("x1", function(d) {
       return d * 20;
     }).attr("x2", function(d) {
       return d * 20;
     });
     sampling_means.data = [];
+    samplingchart.selectAll("rect.dist").transition().attr("height", 0).attr("y", 190);
+    samplingchart.selectAll("line.mean").attr("x1", -1).attr("x2", -1);
+    updateSamplingGraph();
+    $("#sample-range").attr("max", pop_data.data.length);
+    if (parseInt($("#sample-range").val()) >= pop_data.data.length) {
+      $("#sample-range").val(pop_data.data.length);
+      $("#sample-size").html($("#sample-range").val());
+    }
+    $("#sample-max").html($("#sample-range").attr("max"));
   };
 
   freqchart.on("mousedown", function(d, i) {
@@ -248,8 +265,6 @@ Stats class! Only implements a few methods.
   samplingchart_height = 200;
 
   samplingchart = d3.select("#sampling .chart").append("svg").attr("width", 620).attr("height", samplingchart_height);
-
-  samplingchart.append("line").attr("y1", 10).attr("y2", samplingchart_height - 5).attr("x1", 20).attr("x2", 20).attr("stroke", "#000");
 
   samplingchart.append("line").attr("x1", 20).attr("x2", 620).attr("y1", freqchart_height - 10).attr("y2", samplingchart_height - 10).attr("stroke", "#000");
 
@@ -283,7 +298,7 @@ Stats class! Only implements a few methods.
     return _results;
   })()).enter().append("rect").attr("x", function(d, i) {
     return (i * 20) + 21;
-  }).attr("y", 190).attr("class", "dist").attr("width", 19).attr("height", 0).attr("pointer-events", "all").attr("fill", "lightBlue").attr("id", function(d, i) {
+  }).attr("y", 190).attr("class", "dist").attr("width", 19).attr("height", 0).attr("pointer-events", "all").attr("fill", "DodgerBlue").attr("id", function(d, i) {
     return "sampling-" + (i + 1);
   });
 
@@ -309,25 +324,58 @@ Stats class! Only implements a few methods.
         return (d / max) * 190 - 10;
       }
     }).attr("class", "dist");
-    samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()]).enter().append("line").attr("class", "mean");
-    samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()]).attr("y1", 10).attr("y2", freqchart_height - 10).attr("x1", function(d) {
-      return d * 20;
-    }).attr("x2", function(d) {
-      return d * 20;
-    }).attr("stroke", "#333").attr("class", "mean");
+    if (!isNaN(sampling_means.calculateMean())) {
+      samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()]).enter().append("line").attr("class", "mean");
+      samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()]).attr("y1", 10).attr("y2", freqchart_height - 10).attr("x1", function(d) {
+        return d * 20;
+      }).attr("x2", function(d) {
+        return d * 20;
+      }).attr("stroke", "#333").attr("class", "mean");
+    }
   };
 
-  $("#sample-button").click(function() {
+  sampleClick = function() {
     var sample;
-    sample = pop_data.selectSample(20);
+    sample = pop_data.selectSample($("#sample-range").val());
     sampling_means.append(sample.calculateMean());
-    $("#sample-mean").html(sample.calculateMean());
-    $("#sample-stddev").html(sample.calculateStdDev());
+    $("#sample-mean").html(roundDecimals(sample.calculateMean()));
+    $("#sample-stddev").html(roundDecimals(sample.calculateStdDev()));
     showSample(sample.data);
     $("#sampling-n").html(sampling_means.data.length);
-    $("#sampling-mean").html(sampling_means.calculateMean());
-    $("#sampling-stddev").html(sampling_means.calculateStdDev());
+    $("#sampling-mean").html(roundDecimals(sampling_means.calculateMean()));
+    $("#sampling-stddev").html(roundDecimals(sampling_means.calculateStdDev()));
     return updateSamplingGraph();
+  };
+
+  $("#sample-button").click(sampleClick);
+
+  $("#sample-10").click(function() {
+    var i;
+    for (i = 1; i <= 10; i++) {
+      sampleClick();
+    }
   });
+
+  $("#sample-25").click(function() {
+    var i;
+    for (i = 1; i <= 25; i++) {
+      sampleClick();
+    }
+  });
+
+  $("#sample-100").click(function() {
+    var i, _results;
+    _results = [];
+    for (i = 1; i <= 100; i++) {
+      _results.push(sampleClick());
+    }
+    return _results;
+  });
+
+  $("#sample-range").change(function() {
+    return $("#sample-size").html($(this).val());
+  });
+
+  $("#sample-range").attr("max", pop_data.data.length);
 
 }).call(this);

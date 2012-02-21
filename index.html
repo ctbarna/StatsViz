@@ -22,46 +22,59 @@
 
   <div id="container" class="container">
     <header class="row">
-      <h1 class="span12">Stats Distributions</h1>
-      <p class="span12">In a political science stats class, my professor showed the class a
-      Java applet that demonstrated the central limit theorem visually. This
-      is my attempt to recreate it.</p>
+      <h1 class="span12">Central Limit Theorem, Visualized</h1>
+      <p class="span12">Draw a distribution in the "Frequency Distribution"
+        chart and then repeatedly sample to see a visual representation of the
+      central limit theorem.</p>
     </header>
     <div id="main" role="main">
       <h2>Frequency Distribution</h2>
       <div class="row" id="frequency">
         <div class="span8 chart"></div>
-        <div class="span4">
+        <div class="span4 sidebar">
           <h3>Population</h3>
-          <ul>
-            <li>Mean:</li> <span id="freq-mean"></span></li>
-            <li>StdDev:</li> <span id="freq-stddev"></span></li>
+          <ul class="params">
+            <li>Mean: <span id="freq-mean"></span></li>
+            <li>StdDev: <span id="freq-stddev"></span></li>
           </ul>
-          <a href="#" class="btn" id="sample-button">Select Sample</a>
+          <div id="sampleSize">
+            <h3>Sample Size: <span id="sample-size">20</span></h3>
+            <div class="slider" style="margin:0 auto;text-align:center;">
+              0 <input type="range" id="sample-range" min="0"
+            value="20" style="height:8px;padding:0; width:225px">
+            <span id="sample-max">30</span>
+          </div>
+
+          <div class="btn-group" style="margin:0 auto; width:155px;">
+            <a href="#" class="btn" id="sample-button" style="width:100px;">Select Sample</a>
+            <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"
+              style="width:15px;">
+              <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#" id="sample-10">10 Samples</a></li>
+              <li><a href="#" id="sample-25">25 Samples</a></li>
+              <li><a href="#" id="sample-100">100 Samples</a></li>
+            </ul>
+          </div>
           <h3>Latest Sample</h3>
-          <ul>
+          <ul class="params">
             <li><span style="border-top:1px solid #000;">Y</span>:
               <span id="sample-mean"></span></li>
-            <li>StdDev:</li> <span id="sample-stddev"></span></li>
+            <li>StdDev: <span id="sample-stddev"></span></li>
           </ul>
         </div>
       </div>
+    </div>
 
-      <!-- <h2>Sample Distribution</h2>-->
-      <!-- <div class="row" id="sample">-->
-        <!-- <div class="span8 chart"></div>-->
-        <!-- <div class="span4"></div>-->
-     <!-- </div>-->
-
-      <h2>Sampling Distribution</h2>
+        <h2 style="clear: both;margin-top:10px;">Sampling Distribution</h2>
       <div class="row" id="sampling">
         <div class="span8 chart"></div>
-        <div class="span4"><h3>All Samples</h3>
-          <ul>
-            <li>N: <span id="sampling-n">0</span>
+        <div class="span4 sidebar"><h3>All Samples</h3>
+          <ul class="params">
             <li>Mean:
               <span id="sampling-mean"></span></li>
-            <li>StdErr:</li> <span id="sampling-stddev"></span></li>
+            <li>StdErr: <span id="sampling-stddev"></span></li>
+            <li>N: <span id="sampling-n">0</span>
         </ul></div>
      </div>
     <footer>
@@ -70,11 +83,12 @@
   </div> <!--! end of #container -->
 
 
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.6.2.min.js"><\/script>')</script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+  <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.1.min.js"><\/script>')</script>
 
 
   <script src="js/libs/d3.min.js"></script>
+  <script src="js/libs/bootstrap-dropdown.js"></script>
   <script defer src="js/stats.js"></script>
 
   <script> // Change UA-XXXXX-X to be your site's ID

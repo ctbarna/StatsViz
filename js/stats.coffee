@@ -55,6 +55,9 @@ class Stats
 
     sigma = sigma/n
     Math.sqrt(sigma)
+
+roundDecimals = (num) ->
+  Math.round(num*1000)/1000
 ###
 The data viz part!
 ###
@@ -137,6 +140,10 @@ calculateDataArray = ->
   return new Stats(tmp_array)
 
 pop_data = calculateDataArray()
+samplegroup = freqchart.selectAll("#frequency .chart svg").data([1]).enter()
+  .append("g")
+  .attr("class", "samplestuff")
+
 # Mean Line
 freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).enter()
   .append("line")
@@ -145,18 +152,17 @@ freqchart.selectAll("line.mean").data([pop_data.calculateMean()]).enter()
   .attr("stroke", "#333")
   .attr("class", "mean")
 
-$("#freq-mean").html(pop_data.calculateMean())
-$("#freq-stddev").html(pop_data.calculateStdDev())
+$("#freq-mean").html(roundDecimals(pop_data.calculateMean()))
+$("#freq-stddev").html(roundDecimals(pop_data.calculateStdDev()))
 
 # Visualize a specific sample.
 showSample = (sample) ->
   frequencies = calculateFrequencies(sample)
   console.log(frequencies)
 
-  freqchart.selectAll("rect.sample").data([]).exit()
-    .remove()
+  samplegroup.selectAll("rect.sample").remove()
 
-  freqchart.selectAll("rect.sample").data(frequencies).enter()
+  samplegroup.selectAll("rect.sample").data(frequencies).enter()
     .append("rect")
     .attr("x", (d,i) -> (i*20)+21)
     .attr("y", freqchart_height-10).attr("height", 0)
@@ -172,7 +178,8 @@ showSample = (sample) ->
         0
       else
         d*9)
-    .attr("fill", "blue")
+    .attr("fill", "Blue")
+  console.log(frequencies)
 
 
 # Convert from a data array to an array of frequencies.
@@ -192,7 +199,7 @@ clickDragEvent = (d, i) ->
   xy = d3.svg.mouse(this)
   boxNum = Math.ceil((xy[0]-20)/20)
 
-  newHeight = freqchart_height - (Math.floor(xy[1]/9)*9) - 12
+  newHeight = freqchart_height - (Math.floor(xy[1]/9)*9) - 11
 
   if newHeight >= freqchart_height - 20
     newHeight = freqchart_height - 20
@@ -201,7 +208,7 @@ clickDragEvent = (d, i) ->
     newHeight = 0
 
   newY = freqchart_height- newHeight - 10
-  freqchart.select("rect.sample").data([]).exit()
+  freqchart.select("g.samplestuff rect.sample").data([]).exit()
     .remove()
 
   freqchart.select("#box-"+boxNum)
@@ -209,16 +216,33 @@ clickDragEvent = (d, i) ->
     .attr("height", newHeight).attr("y", newY)
 
 
+  samplegroup.selectAll("rect.sample").transition()
+    .attr("height", 0).attr("y", 190).remove()
   # Run calculations on our new population data.
   pop_data = calculateDataArray()
-  $("#freq-mean").html(pop_data.calculateMean())
-  $("#freq-stddev").html(pop_data.calculateStdDev())
+  $("#freq-mean").html(roundDecimals(pop_data.calculateMean()))
+  $("#freq-stddev").html(roundDecimals(pop_data.calculateStdDev()))
 
   freqchart.selectAll("line.mean").data([pop_data.calculateMean()])
     .transition()
     .attr("x1", (d) -> d*20).attr("x2", (d) -> d*20)
+
   # Reset the sampling
   sampling_means.data = []
+  samplingchart.selectAll("rect.dist")
+    .transition().attr("height", 0).attr("y", 190)
+  samplingchart.selectAll("line.mean")
+    .attr("x1", -1).attr("x2", -1)
+  updateSamplingGraph()
+
+  # Update the range
+  $("#sample-range").attr("max", pop_data.data.length)
+
+  if parseInt($("#sample-range").val()) >= pop_data.data.length
+    $("#sample-range").val(pop_data.data.length)
+    $("#sample-size").html($("#sample-range").val())
+  $("#sample-max").html($("#sample-range").attr("max"))
+
   return
 
 freqchart.on("mousedown", (d,i) ->
@@ -245,10 +269,10 @@ samplingchart = d3.select("#sampling .chart").append("svg")
   .attr("width", 620).attr("height", samplingchart_height)
 
 # Make the axes
-samplingchart.append("line")
-  .attr("y1", 10).attr("y2", samplingchart_height-5)
-  .attr("x1", 20).attr("x2", 20)
-  .attr("stroke", "#000")
+# samplingchart.append("line")
+  # .attr("y1", 10).attr("y2", samplingchart_height-5)
+  # .attr("x1", 20).attr("x2", 20)
+  # .attr("stroke", "#000")
 
 samplingchart.append("line")
   .attr("x1", 20).attr("x2", 620)
@@ -281,7 +305,7 @@ samplingchart.selectAll("rect.dist").data(((num)*20 for num in [0..29])).enter()
   .attr("class", "dist")
   .attr("width", 19).attr("height", 0)
   .attr("pointer-events","all")
-  .attr("fill", "lightBlue").attr("id", (d, i) -> "sampling-"+(i+1))
+  .attr("fill", "DodgerBlue").attr("id", (d, i) -> "sampling-"+(i+1))
 
 # Mean Line
 
@@ -306,31 +330,44 @@ updateSamplingGraph = () ->
         (d/max)*190 - 10 )
     .attr("class", "dist")
 
-  samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()])
-    .enter().append("line").attr("class", "mean")
 
-  samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()])
-    .attr("y1", 10).attr("y2", freqchart_height-10)
-    .attr("x1", (d) -> d*20).attr("x2", (d) -> d*20)
-    .attr("stroke", "#333")
-    .attr("class", "mean")
+  unless isNaN(sampling_means.calculateMean())
+    samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()])
+      .enter().append("line").attr("class", "mean")
+
+    samplingchart.selectAll("line.mean").data([sampling_means.calculateMean()])
+      .attr("y1", 10).attr("y2", freqchart_height-10)
+      .attr("x1", (d) -> d*20).attr("x2", (d) -> d*20)
+      .attr("stroke", "#333")
+      .attr("class", "mean")
   return
 
 # UI elements.
-$("#sample-button").click(->
-  sample = pop_data.selectSample(20)
+sampleClick = ->
+  sample = pop_data.selectSample($("#sample-range").val())
   sampling_means.append(sample.calculateMean())
 
   # Update the single sample
-  $("#sample-mean").html(sample.calculateMean())
-  $("#sample-stddev").html(sample.calculateStdDev())
+  $("#sample-mean").html(roundDecimals(sample.calculateMean()))
+  $("#sample-stddev").html(roundDecimals(sample.calculateStdDev()))
 
   showSample(sample.data)
 
   # Update the sample means
   $("#sampling-n").html(sampling_means.data.length)
-  $("#sampling-mean").html(sampling_means.calculateMean())
-  $("#sampling-stddev").html(sampling_means.calculateStdDev())
+  $("#sampling-mean").html(roundDecimals(sampling_means.calculateMean()))
+  $("#sampling-stddev").html(roundDecimals(sampling_means.calculateStdDev()))
 
   updateSamplingGraph()
-  )
+
+$("#sample-button").click(sampleClick)
+$("#sample-10").click(->
+  for i in [1..10]
+    sampleClick()
+  return )
+$("#sample-25").click(-> sampleClick() for i in [1..25]; return)
+$("#sample-100").click(-> sampleClick() for i in [1..100] )
+$("#sample-range").change( ->
+  $("#sample-size").html($(this).val())
+)
+$("#sample-range").attr("max", pop_data.data.length)

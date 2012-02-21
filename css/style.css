@@ -70,10 +70,6 @@ body, header, .container, footer, p {
   font-size:12pt;
 }
 
-svg:active {
-  cursor:move;
-}
-
 line {
   shape-rendering: crispEdges;
 }
@@ -87,6 +83,24 @@ line {
   -o-user-select: none;
   user-select: none;
   font-family:Helvetica; font-size:10px
+}
+
+.sidebar h3 {
+  padding-top:8px;
+}
+.sidebar ul.params {
+  list-style-type:none;
+  padding:0;
+  margin-top:0;
+}
+
+.sidebar ul.params li {
+  width:50%;
+  float:left;
+}
+
+line.mean {
+  shape-rendering: crispEdges;
 }
 
 /* ==|== non-semantic helper classes ======================================== */
